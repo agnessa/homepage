@@ -1,0 +1,5 @@
+SetEnv GEM_PATH /home/agnessae/gems:/usr/lib/ruby/gems/1.8
+SetEnv GEM_HOME /home/agnessae/gems
+
+PassengerEnabled on
+RackBaseURI /homepage
