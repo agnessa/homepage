@@ -42,7 +42,7 @@ helpers do
     unless INFO_SOURCES.include? info_source
       raise "Invalid info source given"
     end
-    name = "#{info_source.capitalize}Info"
+    name = "#{info_source.to_s.capitalize}Info"
     constant = Object
     constant = constant.const_defined?(name) ? constant.const_get(name) : constant.const_missing(name)
     is = constant.new
