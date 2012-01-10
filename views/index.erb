@@ -1,6 +1,7 @@
 <html>
   <head>
     <link rel="stylesheet" href="css/roundabout.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="css/github_info.css" type="text/css" media="screen" />
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
     <script type="text/javascript" src="js/jquery.githubwidget.min.js"></script>
     <script type="text/javascript" src="js/jquery.roundabout.min.js"></script>
@@ -8,23 +9,7 @@
     <title>Agnieszka Figiel</title>
   </head>
   <body>
-    <ul id="roundabout">
-      <li>
-        bio
-      </li>
-      <li>
-        github
-      </li>
-      <li>
-        linked in
-      </li>
-      <li>
-        working with rails
-      </li>
-      <li>
-        gild
-      </li>
-    </ul>
+    <%= info_boxes %>
     <script type="text/javascript">
       $(document).ready(function() {
         $('#roundabout').roundabout({

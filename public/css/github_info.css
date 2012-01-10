@@ -1,0 +1,16 @@
+.info_box_header {
+  padding: 2px;
+  background-color: orange;
+}
+
+table {
+  font-size: 90%;
+}
+
+th {
+  text-align: left;
+}
+
+th, td {
+  padding: 5px 2px;
+}
