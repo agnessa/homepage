@@ -1,5 +1,8 @@
 class InfoSource
   attr :title
+  def data
+    {}.to_json
+  end
   def render
     render_header + render_body
   end
@@ -21,16 +24,15 @@ end
 
 class GithubInfo < InfoSource
   def initialize
+  end
+
+  def data
     res = RestClient.get "https://api.github.com/users/#{settings.github_user}"
     res_json = JSON.parse(res)
-    @login = res_json['login']
-    @avatar_url = res_json['avatar_url']
-    @html_url = res_json['html_url']
-    @public_repos = res_json['public_repos']
-    @public_gists = res_json['public_gists']
-    @followers = res_json['followers']
-    @following = res_json['following']
-    @created_at = res_json['created_at']
+    fields = ['login', 'avatar_url', 'html_url', 'public_repos', 'public_gists', 'followers', 'following', 'created_at']
+    data = res_json.select{ |e| fields.include? e}
+    data['created_at'] = Time.parse(data['created_at']).to_s
+    data.to_json
   end
 
   def render_header
@@ -39,36 +41,34 @@ class GithubInfo < InfoSource
 
   def render_body
     super do
-    "     
-          <table>
-          <tr>
-          <th>
-            <img width=\"20\" height=\"20\" src=\"#{@avatar_url}\">
-            <a href=\"#{@html_url}\">#{@login}</a>
-          </th>
-          </tr>
-          <tr>
-          <th>public repos</th>
-          <td>#{@public_repos}</td>
-          </tr>
-          <tr>
-          <th>public gists</th>
-          <td>#{@public_gists}</td>
-          </tr>
-          <tr>
-          <th>followers</th>
-          <td>#{@followers}</td>
-          </tr>
-          <tr>
-          <th>following</th>
-          <td>#{@following}</td>
-          </tr>
-          <tr>
-          <th>member since</th>
-          <td>#{@created_at}</td>
-          </tr>
-          </table>
-        "
+    "<table>
+      <tr>
+        <th>
+          <img width=\"20\" height=\"20\" id=\"avatar_url\" src=\"\">
+          <a id=\"html_url\" href=\"\"><span id=\"login\"></span></a>
+        </th>
+      </tr>
+      <tr>
+        <th>public repos</th>
+        <td id=\"public_repos\"></td>
+      </tr>
+      <tr>
+        <th>public gists</th>
+        <td id=\"public_gists\"></td>
+      </tr>
+      <tr>
+        <th>followers</th>
+        <td id=\"followers\"></td>
+      </tr>
+      <tr>
+        <th>following</th>
+        <td id=\"following\"</td>
+      </tr>
+      <tr>
+        <th>member since</th>
+        <td id=\"created_at\"</td>
+      </tr>
+    </table>"
     end
   end
 end
