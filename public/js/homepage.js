@@ -14,10 +14,7 @@ var Homepage = {
         success: function(data){
           $.each(data, function(key, value){
             var element = $('#'+key);
-            console.log(key);
-            console.log(element.length);
             var tagName = (element.length == 0 ? '' : element[0].tagName.toLowerCase());
-            console.log(tagName);
             if(tagName == 'img'){
               element.attr('src', value);
             } else if(tagName == 'a'){
