@@ -30,7 +30,7 @@ class GithubInfo < InfoSource
     res = RestClient.get "https://api.github.com/users/#{settings.github_conf[:user]}"
     res_json = JSON.parse(res)
     fields = ['login', 'avatar_url', 'html_url', 'public_repos', 'public_gists', 'followers', 'following', 'created_at']
-    data = res_json.select{ |e| fields.include? e}
+    data = res_json.delete_if{ |k, v| !fields.include? k }
     data['created_at'] = Time.parse(data['created_at']).to_s
     data.to_json
   end
