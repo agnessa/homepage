@@ -1,6 +1,7 @@
 require 'sinatra'
 require 'rest_client'
 require 'json'
+require 'yaml'
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 require 'info_source'
 
@@ -13,8 +14,11 @@ if production?
   require 'rubygems' || Gem.clear_paths
 end
 
+conf = YAML::load_file('config.yml')
+
 configure do
-  set :github_user, :agnessa
+  set :github_conf, conf[:github]
+  set :linkedin_conf, conf[:linkedin]
 end
 
 #class Application < Sinatra::Base

@@ -27,7 +27,7 @@ class GithubInfo < InfoSource
   end
 
   def data
-    res = RestClient.get "https://api.github.com/users/#{settings.github_user}"
+    res = RestClient.get "https://api.github.com/users/#{settings.github_conf[:user]}"
     res_json = JSON.parse(res)
     fields = ['login', 'avatar_url', 'html_url', 'public_repos', 'public_gists', 'followers', 'following', 'created_at']
     data = res_json.select{ |e| fields.include? e}
@@ -43,9 +43,9 @@ class GithubInfo < InfoSource
     super do
     "<table>
       <tr>
-        <th>
+        <th colspan=\"2\">
           <img width=\"20\" height=\"20\" id=\"avatar_url\" src=\"\">
-          <a id=\"html_url\" href=\"\"><span id=\"login\"></span></a>
+          <a id=\"html_url\" href=\"\"><span>agnessa</span></a>
         </th>
       </tr>
       <tr>
@@ -74,9 +74,54 @@ class GithubInfo < InfoSource
 end
 
 class LinkedinInfo < InfoSource
+  require 'linkedin'
+
+  def data
+    client = LinkedIn::Client.new(settings.linkedin_conf[:api_key], settings.linkedin_conf[:secret])
+    client.authorize_from_access(settings.linkedin_conf[:access_key1], settings.linkedin_conf[:access_key2])
+    user = client.profile(:fields => %w(picture-url public-profile-url headline skills positions))
+    current_position = user.positions.all[0]
+    current_position = "#{current_position.title} at #{current_position.company.name}"
+    skills = user.skills.all.map{|s| s.skill.name}.join(', ')
+    user_fields = {
+      :skills => skills,
+      :position => current_position
+    }
+    [:headline, :picture_url, :public_profile_url].each do |field|
+      user_fields[field] = user.send(field)
+    end
+    user_fields.to_json
+  end
+
   def render_header
     super{"LinkedIn"}
   end
+
+  def render_body
+    super do
+    "<table>
+      <tr>
+        <th colspan=\"2\">
+          <img width=\"20\" height=\"20\" id=\"picture_url\" src=\"\">
+          <a id=\"public_profile_url\" href=\"\"><span>Agnieszka Figiel</span></a>
+        </th>
+      </tr>
+      <tr>
+        <th>headline</th>
+        <td id=\"headline\"></td>
+      </tr>
+      <tr>
+        <th>position</th>
+        <td id=\"position\"</td>
+      </tr>
+      <tr>
+        <th>skills</th>
+        <td id=\"skills\"</td>
+      </tr>
+    </table>"
+    end
+  end
+
 end
 class WwrInfo < InfoSource
   def render_header
