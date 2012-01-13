@@ -1,3 +1,5 @@
+require 'json'
+
 class InfoSource
   attr :title
   def data
@@ -23,6 +25,7 @@ class InfoSource
 end
 
 class GithubInfo < InfoSource
+  require 'rest_client'
   def initialize
   end
 
@@ -124,9 +127,61 @@ class LinkedinInfo < InfoSource
 
 end
 class WwrInfo < InfoSource
+  require 'open-uri'
+  require 'nokogiri'
+  def data
+    doc = Nokogiri::HTML(open("http://workingwithrails.com/person/5003-agnieszka-figiel"))
+    data = {}
+    sidebar = doc.search("#Side")
+    data[:authority_items] = sidebar.search("ul.authority/li").map(&:inner_html).join("\n")
+    doc.css("#Side > div").each_with_index do |div, i|
+      case i
+      when 1
+        data[:authority] = div.search("div:nth-child(2)").inner_text.chomp
+      when 2
+        data[:popularity] = div.search("div:nth-child(2)").inner_text.chomp
+      when 3
+        data[:ranking] = div.inner_text.chomp
+      end
+    end
+    data[:experience] = doc.css("#Side > p").first.inner_text.chomp
+    data.to_json
+  end
   def render_header
     super{"Working with Rails"}
   end
+  def render_body
+    super do
+    "<table>
+      <tr>
+        <th colspan=\"2\">
+          <a href=\"#{settings.wwr_conf[:profile_url]}\"><span>Agnieszka Figiel</span></a>
+        </th>
+      </tr>
+      <tr>
+        <th>authority</th>
+        <td id=\"authority\"></td>
+      </tr>
+      <tr>
+        <th></th>
+        <td id=\"authority_items\"></td>
+      </tr>
+      <tr>
+        <th>popularity</th>
+        <td id=\"popularity\"</td>
+      </tr>
+      <tr>
+        <th>ranking</th>
+        <td id=\"ranking\"</td>
+      </tr>
+      <tr>
+        <th>experience</th>
+        <td id=\"experience\"</td>
+      </tr>
+    </table>"
+    end
+  end
+
 end
 class GildInfo < InfoSource
   def render_header
