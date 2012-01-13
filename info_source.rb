@@ -5,12 +5,18 @@ class InfoSource
   def data
     {}.to_json
   end
+  def profile_link
+    "<a href=#{profile_url}>view profile</a>"
+  end
   def render
     render_header + render_body
   end
   def render_header
     res = "<div class=\"info_box_header\">"
-    if block_given?
+    if profile_url
+      res += "<span class=\"title\">#{title}</span>" 
+      res += "<span class=\"profile_link\">#{profile_link}</span>"
+    else
       res += yield
     end
     res += "</div>"
@@ -27,6 +33,7 @@ end
 class GithubInfo < InfoSource
   require 'rest_client'
   def initialize
+    @title = "Github"
   end
 
   def data
@@ -38,6 +45,10 @@ class GithubInfo < InfoSource
     data.to_json
   end
 
+  def profile_url
+    "https://github.com/#{settings.github_conf[:user]}"
+  end
+
   def render_header
     super{"Github"}
   end
@@ -45,12 +56,6 @@ class GithubInfo < InfoSource
   def render_body
     super do
     "<table>
-      <tr>
-        <th colspan=\"2\">
-          <img width=\"20\" height=\"20\" id=\"avatar_url\" src=\"\">
-          <a id=\"html_url\" href=\"\"><span>agnessa</span></a>
-        </th>
-      </tr>
       <tr>
         <th>public repos</th>
         <td id=\"public_repos\"></td>
@@ -79,6 +84,10 @@ end
 class LinkedinInfo < InfoSource
   require 'linkedin'
 
+  def initialize
+    @title="LinkedIn"
+  end
+
   def data
     client = LinkedIn::Client.new(settings.linkedin_conf[:api_key], settings.linkedin_conf[:secret])
     client.authorize_from_access(settings.linkedin_conf[:access_key1], settings.linkedin_conf[:access_key2])
@@ -96,6 +105,10 @@ class LinkedinInfo < InfoSource
     user_fields.to_json
   end
 
+  def profile_url
+    "http://www.linkedin.com/in/#{settings.github_conf[:user]}"
+  end
+
   def render_header
     super{"LinkedIn"}
   end
@@ -103,12 +116,6 @@ class LinkedinInfo < InfoSource
   def render_body
     super do
     "<table>
-      <tr>
-        <th colspan=\"2\">
-          <img width=\"20\" height=\"20\" id=\"picture_url\" src=\"\">
-          <a id=\"public_profile_url\" href=\"\"><span>Agnieszka Figiel</span></a>
-        </th>
-      </tr>
       <tr>
         <th>headline</th>
         <td id=\"headline\"></td>
@@ -129,23 +136,32 @@ end
 class WwrInfo < InfoSource
   require 'open-uri'
   require 'nokogiri'
+  def initialize
+    @title = "Working With Rails"
+  end
   def data
-    doc = Nokogiri::HTML(open("http://workingwithrails.com/person/5003-agnieszka-figiel"))
+    doc = Nokogiri::HTML(open(profile_url))
     data = {}
     sidebar = doc.search("#Side")
     data[:authority_items] = sidebar.search("ul.authority/li").map(&:inner_html).join("\n")
     doc.css("#Side > div").each_with_index do |div, i|
       case i
       when 1
-        data[:authority] = div.search("div:nth-child(2)").inner_text.chomp
+        node = div.search("div:nth-child(2)")
+        data[:authority] = node && node.inner_text.chomp
       when 2
-        data[:popularity] = div.search("div:nth-child(2)").inner_text.chomp
+        node = div.search("div:nth-child(2)")
+        data[:popularity] = node && node.inner_text.chomp
       when 3
-        data[:ranking] = div.inner_text.chomp
+        data[:ranking] = div && div.inner_text.chomp.sub(/^Ranking:\s/,'')
       end
     end
-    data[:experience] = doc.css("#Side > p").first.inner_text.chomp
+    node = doc.css("#Side > p").first
+    data[:experience] = node && node.inner_text.chomp
     data.to_json
+  end
+  def profile_url
+    "http://workingwithrails.com/person/#{settings.wwr_conf[:user]}"
   end
   def render_header
     super{"Working with Rails"}
@@ -153,11 +169,6 @@ class WwrInfo < InfoSource
   def render_body
     super do
     "<table>
-      <tr>
-        <th colspan=\"2\">
-          <a href=\"#{settings.wwr_conf[:profile_url]}\"><span>Agnieszka Figiel</span></a>
-        </th>
-      </tr>
       <tr>
         <th>authority</th>
         <td id=\"authority\"></td>
@@ -184,11 +195,20 @@ class WwrInfo < InfoSource
 
 end
 class GildInfo < InfoSource
+  def initialize
+    @title="Gild"
+  end
+  def profile_url
+    "http://www.gild.com/#{settings.gild_conf[:user]}"
+  end
   def render_header
     super{"Gild"}
   end
 end
 class BioInfo < InfoSource
+  def profile_url
+    nil
+  end
   def render_header
     super{"Bio"}
   end

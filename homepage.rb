@@ -18,6 +18,7 @@ configure do
   set :github_conf, conf[:github]
   set :linkedin_conf, conf[:linkedin]
   set :wwr_conf, conf[:wwr]
+  set :gild_conf, conf[:gild]
 end
 
 #class Application < Sinatra::Base
