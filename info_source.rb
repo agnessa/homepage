@@ -8,26 +8,6 @@ class InfoSource
   def profile_link
     "<a href=#{profile_url}>view profile</a>"
   end
-  def render
-    render_header + render_body
-  end
-  def render_header
-    res = "<div class=\"info_box_header\">"
-    if profile_url
-      res += "<span class=\"title\">#{title}</span>" 
-      res += "<span class=\"profile_link\">#{profile_link}</span>"
-    else
-      res += yield
-    end
-    res += "</div>"
-  end
-  def render_body
-    res = "<div class=\"info_box_body\">"
-    if block_given?
-      res += yield
-    end
-    res += "</div>"
-  end
 end
 
 class GithubInfo < InfoSource
@@ -47,37 +27,6 @@ class GithubInfo < InfoSource
 
   def profile_url
     "https://github.com/#{settings.github_conf[:user]}"
-  end
-
-  def render_header
-    super{"Github"}
-  end
-
-  def render_body
-    super do
-    "<table>
-      <tr>
-        <th>public repos</th>
-        <td id=\"public_repos\"></td>
-      </tr>
-      <tr>
-        <th>public gists</th>
-        <td id=\"public_gists\"></td>
-      </tr>
-      <tr>
-        <th>followers</th>
-        <td id=\"followers\"></td>
-      </tr>
-      <tr>
-        <th>following</th>
-        <td id=\"following\"</td>
-      </tr>
-      <tr>
-        <th>member since</th>
-        <td id=\"created_at\"</td>
-      </tr>
-    </table>"
-    end
   end
 end
 
@@ -108,30 +57,6 @@ class LinkedinInfo < InfoSource
   def profile_url
     "http://www.linkedin.com/in/#{settings.github_conf[:user]}"
   end
-
-  def render_header
-    super{"LinkedIn"}
-  end
-
-  def render_body
-    super do
-    "<table>
-      <tr>
-        <th>headline</th>
-        <td id=\"headline\"></td>
-      </tr>
-      <tr>
-        <th>position</th>
-        <td id=\"position\"</td>
-      </tr>
-      <tr>
-        <th>skills</th>
-        <td id=\"skills\"</td>
-      </tr>
-    </table>"
-    end
-  end
-
 end
 class WwrInfo < InfoSource
   require 'open-uri'
@@ -163,36 +88,6 @@ class WwrInfo < InfoSource
   def profile_url
     "http://workingwithrails.com/person/#{settings.wwr_conf[:user]}"
   end
-  def render_header
-    super{"Working with Rails"}
-  end
-  def render_body
-    super do
-    "<table>
-      <tr>
-        <th>authority</th>
-        <td id=\"authority\"></td>
-      </tr>
-      <tr>
-        <th></th>
-        <td id=\"authority_items\"></td>
-      </tr>
-      <tr>
-        <th>popularity</th>
-        <td id=\"popularity\"</td>
-      </tr>
-      <tr>
-        <th>ranking</th>
-        <td id=\"ranking\"</td>
-      </tr>
-      <tr>
-        <th>experience</th>
-        <td id=\"experience\"</td>
-      </tr>
-    </table>"
-    end
-  end
-
 end
 class GildInfo < InfoSource
   def initialize
@@ -201,15 +96,12 @@ class GildInfo < InfoSource
   def profile_url
     "http://www.gild.com/#{settings.gild_conf[:user]}"
   end
-  def render_header
-    super{"Gild"}
-  end
 end
 class BioInfo < InfoSource
+  def initialize
+    @title="Bio"
+  end
   def profile_url
     nil
-  end
-  def render_header
-    super{"Bio"}
   end
 end

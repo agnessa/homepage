@@ -57,6 +57,15 @@ helpers do
       raise "Invalid info source given"
     end
     is = info_source_const(info_source).new
-    is.render
+    res = "<div class=\"info_box_header\">"
+    res += "<span class=\"title\">#{is.title}</span>"
+    if is.profile_url
+      res += "<span class=\"profile_link\">#{is.profile_link}</span>"
+    end
+    res += "</div>"
+    res += "<div class=\"info_box_body\">"
+    res += erb :"info_sources/#{info_source}"
+    res += "</div>"
+    res
   end
 end
