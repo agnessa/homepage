@@ -19,6 +19,10 @@ var Homepage = {
               element.attr('src', value);
             } else if(tagName == 'a'){
               element.attr('href', value);
+            } else if(tagName == 'table'){
+              $.each(value, function(idx, item){
+                element.append('<tr><th>' + item[0] + '</th><td>' + item[1] + '</td></tr>');
+              });
             } else {
               element.text(value);
             }

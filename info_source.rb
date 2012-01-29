@@ -74,14 +74,16 @@ class WwrInfo < InfoSource
       when 1
         node = div.search("div:nth-child(2)")
         data[:authority] = node && node.inner_text.chomp
+        #TODO as percentage
       when 2
         node = div.search("div:nth-child(2)")
         data[:popularity] = node && node.inner_text.chomp
+        #TODO as percentage
       when 3
         data[:ranking] = div && div.inner_text.chomp.sub(/^Ranking:\s/,'')
       end
     end
-    node = doc.css("#Side > p").first
+    node = sidebar.search("p").first
     data[:experience] = node && node.inner_text.chomp
     data.to_json
   end
@@ -90,8 +92,22 @@ class WwrInfo < InfoSource
   end
 end
 class GildInfo < InfoSource
+  require 'open-uri'
+  require 'nokogiri'
   def initialize
     @title="Gild"
+  end
+  def data
+    doc = Nokogiri::HTML(open(profile_url))
+    data = {:gild_skills => []}
+    skills = doc.search("#profile_user_skills_content")
+    skills.search("ul.users_skills/li").each_with_index do |li, i|
+      name = li.search(".profile_user_skill_name")
+      score = li.search("span.current_score")
+      data[:gild_skills] << [name.inner_text, score.inner_text]
+      #TODO as percentage
+    end
+    data.to_json
   end
   def profile_url
     "http://www.gild.com/#{settings.gild_conf[:user]}"
