@@ -20,8 +20,11 @@ class GithubInfo < InfoSource
     res = RestClient.get "https://api.github.com/users/#{settings.github_conf[:user]}"
     res_json = JSON.parse(res)
     fields = ['login', 'avatar_url', 'html_url', 'public_repos', 'public_gists', 'followers', 'following', 'created_at']
-    data = res_json.delete_if{ |k, v| !fields.include? k }
-    data['created_at'] = Time.parse(data['created_at']).to_s
+    data = {}
+    fields.each do |field|
+      data["github_#{field}"] = res_json[field]
+    end
+    data['github_created_at'] = Time.parse(data['github_created_at']).to_s
     data.to_json
   end
 
@@ -45,11 +48,11 @@ class LinkedinInfo < InfoSource
     current_position = "#{current_position.title} at #{current_position.company.name}"
     skills = user.skills.all.map{|s| s.skill.name}.join(', ')
     user_fields = {
-      :skills => skills,
-      :position => current_position
+      :linkedin_skills => skills,
+      :linkedin_position => current_position
     }
     [:headline, :picture_url, :public_profile_url].each do |field|
-      user_fields[field] = user.send(field)
+      user_fields["linkedin_#{field}"] = user.send(field)
     end
     user_fields.to_json
   end
@@ -68,23 +71,23 @@ class WwrInfo < InfoSource
     doc = Nokogiri::HTML(open(profile_url))
     data = {}
     sidebar = doc.search("#Side")
-    data[:authority_items] = sidebar.search("ul.authority/li").map(&:inner_html).join("\n")
+    data[:wwr_authority_items] = sidebar.search("ul.authority/li").map(&:inner_html).join("\n")
     doc.css("#Side > div").each_with_index do |div, i|
       case i
       when 1
         node = div.search("div:nth-child(2)")
-        data[:authority] = node && node.inner_text.chomp
+        data[:wwr_authority] = node && node.inner_text.chomp
         #TODO as percentage
       when 2
         node = div.search("div:nth-child(2)")
-        data[:popularity] = node && node.inner_text.chomp
+        data[:wwr_popularity] = node && node.inner_text.chomp
         #TODO as percentage
       when 3
-        data[:ranking] = div && div.inner_text.chomp.sub(/^Ranking:\s/,'')
+        data[:wwr_ranking] = div && div.inner_text.chomp.sub(/^Ranking:\s/,'')
       end
     end
     node = sidebar.search("p").first
-    data[:experience] = node && node.inner_text.chomp
+    data[:wwr_experience] = node && node.inner_text.chomp
     data.to_json
   end
   def profile_url
