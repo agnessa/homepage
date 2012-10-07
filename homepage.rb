@@ -2,6 +2,7 @@ require 'sinatra'
 require 'yaml'
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 require 'info_source'
+require 'newrelic_rpm'
 
 #require 'sinatra_more'
 #TODO work out the problem with sinatra_more and use content_tag in helpers
